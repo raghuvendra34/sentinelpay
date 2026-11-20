@@ -1,0 +1,77 @@
+# `docker compose up --build` boots the whole system locally:
+# Postgres 16, Redis 7, Ledger :8002, Gateway :8001, Agent worker, Console :3000.
+# Put LLM_API_KEY (and optionally JWT_SECRET) in a root .env file.
+# The frontend needs a token at build time: python infra/mint_token.py  ->  DEMO_JWT in .env
+
+x-backend-env: &backend-env
+  DATABASE_URL: postgresql+asyncpg://sentinel:sentinel@postgres:5432/sentinelpay
+  REDIS_URL: redis://redis:6379/0
+  JWT_SECRET: ${JWT_SECRET:-change-me}
+  LLM_API_KEY: ${LLM_API_KEY:-}
+  LLM_PROVIDER: ${LLM_PROVIDER:-groq}
+  LLM_MODEL: ${LLM_MODEL:-openai/gpt-oss-120b}
+  LEDGER_URL: http://ledger:8002
+  ALLOWED_ORIGINS: http://localhost:3000
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sentinel
+      POSTGRES_PASSWORD: sentinel
+      POSTGRES_DB: sentinelpay
+    volumes:
+      - ./infra/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - pgdata:/var/lib/postgresql/data
+    ports: ["5433:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sentinel -d sentinelpay"]
+      interval: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      retries: 20
+
+  ledger:
+    build: .
+    command: uvicorn services.ledger.main:app --host 0.0.0.0 --port 8002
+    environment: *backend-env
+    ports: ["8002:8002"]
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  gateway:
+    build: .
+    command: uvicorn services.gateway.main:app --host 0.0.0.0 --port 8001
+    environment: *backend-env
+    ports: ["8001:8001"]
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      ledger: { condition: service_started }
+
+  agent_worker:
+    build: .
+    command: python -m services.agent_worker.consumer
+    restart: unless-stopped
+    environment: *backend-env
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8001
+        NEXT_PUBLIC_DEMO_JWT: ${DEMO_JWT:-}
+    ports: ["3000:3000"]
+    depends_on: [gateway]
+
+volumes:
+  pgdata:

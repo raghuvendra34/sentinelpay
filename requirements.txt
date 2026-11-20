@@ -1,0 +1,16 @@
+# Exactly the packages from Blueprint Phase 1, step 2.
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+pydantic
+httpx
+redis[hiredis]
+python-jose
+langgraph
+langchain-core
+langchain-groq
+pytest
+# Optional: Gemini instead of Groq (set LLM_PROVIDER=gemini)
+# langchain-google-genai
+greenlet

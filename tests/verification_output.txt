@@ -1,0 +1,22 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.9.6, pytest-8.4.2, pluggy-1.6.0 -- /Users/raghuvendrakumar34gmail.com/Desktop/sentinelpay/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/raghuvendrakumar34gmail.com/Desktop/sentinelpay
+configfile: pytest.ini
+testpaths: tests
+plugins: anyio-4.12.1
+collecting ... collected 11 items
+
+tests/test_concurrency.py::test_five_simultaneous_400_dollar_transfers_from_1000 PASSED [  9%]
+tests/test_guardrails.py::test_guardrail_matrix[10000-0.35-0-AUTO_CREDIT_APPROVED] PASSED [ 18%]
+tests/test_guardrails.py::test_guardrail_matrix[5000-0.1-0-AUTO_CREDIT_APPROVED] PASSED [ 27%]
+tests/test_guardrails.py::test_guardrail_matrix[10001-0.1-0-ESCALATED_TO_OPS] PASSED [ 36%]
+tests/test_guardrails.py::test_guardrail_matrix[5000-0.351-0-ESCALATED_TO_OPS] PASSED [ 45%]
+tests/test_guardrails.py::test_guardrail_matrix[5000-0.1-1-ESCALATED_TO_OPS] PASSED [ 54%]
+tests/test_guardrails.py::test_guardrail_matrix[60000-0.99-3-ESCALATED_TO_OPS] PASSED [ 63%]
+tests/test_guardrails.py::test_confidence_bounds_and_direction PASSED    [ 72%]
+tests/test_idempotency.py::test_same_idempotency_key_creates_one_transaction PASSED [ 81%]
+tests/test_rate_limit.py::test_requests_11_and_12_are_rate_limited PASSED [ 90%]
+tests/test_rate_limiter_unit.py::test_same_millisecond_requests_are_all_counted PASSED [100%]
+
+============================== 11 passed in 0.27s ==============================

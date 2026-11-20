@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: light; }
+
+body {
+  @apply bg-paper text-ink antialiased;
+  font-feature-settings: "cv11" 1;
+}
+
+:focus-visible { outline: 2px solid #1D5C5A; outline-offset: 2px; }
+
+@layer components {
+  /* Money is set in the serif with lining, tabular figures so columns align like a printed ledger. */
+  .money { @apply font-serif; font-variant-numeric: lining-nums tabular-nums; }
+
+  /* Side rails are unboxed: they open with the same ink rule as the T-account and the journal. */
+  .rail { @apply border-t-2 border-ink pt-4; }
+  .rail-title { @apply font-serif text-xl tracking-tight; }
+
+  /* The journal is the one real "page": square corners, ruled, with a double rule down the middle. */
+  .journal { @apply border-t-2 border-ink bg-sheet shadow-[0_1px_0_#C4D0C6]; }
+  .double-rule-x { @apply border-l-4 border-double border-rule; }
+
+  .field { @apply w-full rounded-sm border border-rule bg-white px-3 py-2 text-sm; }
+  .btn { @apply inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50; }
+  .btn-primary { @apply btn bg-teal text-white hover:bg-[#164a48]; }
+  .btn-quiet { @apply btn border border-rule bg-white text-ink hover:bg-teal-soft; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
